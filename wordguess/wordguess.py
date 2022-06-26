@@ -69,6 +69,8 @@ def dashport(stdscr):
     app.add_control("q", exit_program, case_sensitive=False)
     app.picked_word = pick_word()
     app.letter_list = list(app.picked_word.strip())
+    if cheat_mode:
+        app.print(f"Cheat Mode: {app.picked_word}", panel="layout.0")
     show_guess_grid(app)
     show_keyboard(app)
     while True:
