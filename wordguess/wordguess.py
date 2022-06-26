@@ -19,10 +19,9 @@ def show_guess_grid(app, **kwargs):
     guesses = ["first", "second", "third", "fourth", "fifth", "sixth"]
     grid_row = 5
     for guess in guesses:
-        for i in range(0, 5):
+        for i in range(1, 6):
             panel = f"{guess}_guess_{str(i)}"
-            app.panels[panel] = app.panel(height=5, width=9, y=grid_row, x=20+(i*9), border=True)
-            app.print("L", x=1, y=1, panel=f"{panel}.0")
+            app.panels[panel] = app.panel(height=5, width=9, y=grid_row, x=10+(i*9), border=True)
         grid_row += 5
 
 def show_keyboard(app):
@@ -53,12 +52,31 @@ def show_keyboard(app):
                    x=pos_x, y=44, height=3, width=3, h_align="center")
         pos_x += 4
 
-def handle_guess(app, letter_pressed):
-    app.print(letter_pressed, x=1, y=1, panel="first_guess_0.0")
+def handle_guess(app, letter_pressed, guess_position):
+    row_names = ["first", "second", "third", "fourth", "fifth", "sixth"]
+    guess_order = []
+    for row_name in row_names:
+        for cell in range(1, 6):
+            guess_order.append(f"{row_name}_guess_{cell}")
+    if not app.guess_complete:
+        app.print(letter_pressed, x=4, y=2, panel=f"{guess_order[guess_position - 1]}.0")
+        app.current_guess.append(letter_pressed)
+    if (app.guess_position % 5) != 0:
+        app.guess_position += 1
+    else:
+         app.print("Confirm your guess by pressing Enter", x=4, y=2, panel="layout.0")
+         app.guess_complete = True
 
+def handle_deletion(app, guess_position):
+    row_names = ["first", "second", "third", "fourth", "fifth", "sixth"]
+    guess_order = []
+    for row_name in row_names:
+        for cell in range(1, 6):
+            guess_order.append(f"{row_name}_guess_{cell}")
+    app.print(" ", x=4, y=2, panel=f"{guess_order[guess_position - 2]}.0")
+    if (guess_position - 2) not in [0, 5, 10, 15, 20, 25]:
+        app.guess_position -= 1
 
-def exit_program(app):
-    exit(0)
 
 def pick_word():
     with open('wordlist.txt', 'r') as f:
@@ -68,7 +86,6 @@ def pick_word():
 def dashport(stdscr):
     app = Dashport(stdscr)
     app.layout("single_panel", border=False)
-    app.add_control("KEY_F(1)", exit_program, case_sensitive=False)
     app.picked_word = pick_word()
     app.letter_list = list(app.picked_word.strip())
     if cheat_mode:
@@ -77,6 +94,10 @@ def dashport(stdscr):
         app.print(f"Press F1 to quit", panel="layout.0")
     show_guess_grid(app)
     show_keyboard(app)
+    app.guess_position = 1
+    app.guess = 0
+    app.guess_complete = False
+    app.current_guess = []
     while True:
         letters = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
                    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
@@ -84,7 +105,11 @@ def dashport(stdscr):
         letter_pressed = None
         letter_pressed = app.screen.getkey()
         if letter_pressed.upper() in letters:
-            handle_guess(app, letter_pressed)
+            handle_guess(app, letter_pressed.upper(), app.guess_position)
+        elif letter_pressed == "KEY_F(1)":
+            exit(0)
+        elif letter_pressed in ('KEY_BACKSPACE', '\b', '\x7f'):
+            handle_deletion(app, app.guess_position)
         else:
             app.refresh()
 
