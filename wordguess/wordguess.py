@@ -16,12 +16,13 @@ else:
     cheat_mode = True
 
 def show_guess_grid(app, **kwargs):
-    key_pressed = kwargs.get("key_pressed", " ")
     guesses = ["first", "second", "third", "fourth", "fifth", "sixth"]
     grid_row = 5
     for guess in guesses:
         for i in range(0, 5):
-            app.panels[f"{guess}_guess_{str(i)}"] = app.panel(height=5, width=9, y=grid_row, x=20+(i*9), border=True)
+            panel = f"{guess}_guess_{str(i)}"
+            app.panels[panel] = app.panel(height=5, width=9, y=grid_row, x=20+(i*9), border=True)
+            app.print("L", x=1, y=1, panel=f"{panel}.0")
         grid_row += 5
 
 def show_keyboard(app):
@@ -52,18 +53,8 @@ def show_keyboard(app):
                    x=pos_x, y=44, height=3, width=3, h_align="center")
         pos_x += 4
 
-def handle_guess(app):
-    app.key_pressed = app.screen.getkey().upper()
-    show_guess_grid(app, key_pressed=app.key_pressed)
-
-
-def load_controls(app):
-    letters = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
-               'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
-               'Z', 'X', 'C', 'V', 'B', 'N', 'M']
-    for key_control in letters:
-        app.add_control(key_control, handle_guess, case_sensitive=False)
-
+def handle_guess(app, letter_pressed):
+    app.print(letter_pressed, x=1, y=1, panel="first_guess_0.0")
 
 
 def exit_program(app):
@@ -86,9 +77,16 @@ def dashport(stdscr):
         app.print(f"Press F1 to quit", panel="layout.0")
     show_guess_grid(app)
     show_keyboard(app)
-    load_controls(app)
     while True:
-        app.refresh()
+        letters = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+                   'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
+                   'Z', 'X', 'C', 'V', 'B', 'N', 'M']
+        letter_pressed = None
+        letter_pressed = app.screen.getkey()
+        if letter_pressed.upper() in letters:
+            handle_guess(app, letter_pressed)
+        else:
+            app.refresh()
 
 
 if __name__ == '__main__':
