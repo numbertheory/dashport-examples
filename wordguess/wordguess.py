@@ -84,7 +84,7 @@ def evaluate_guess(app):
                 evaluated_result.append("grey")
         else:
             evaluated_result.append("grey")
-    app.print(f"{evaluated_result}", x=4, y=3, panel="layout.0")
+    # app.print(f"{evaluated_result}", x=4, y=3, panel="layout.0")
     color_in_grid(app, evaluated_result, app.guess_position, app.current_guess)
     app.current_guess = []
     app.guess_position += 1
