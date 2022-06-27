@@ -73,8 +73,9 @@ def handle_deletion(app, guess_position):
     for row_name in row_names:
         for cell in range(1, 6):
             guess_order.append(f"{row_name}_guess_{cell}")
-    app.print(" ", x=4, y=2, panel=f"{guess_order[guess_position - 2]}.0")
-    if (guess_position - 2) not in [0, 5, 10, 15, 20, 25]:
+    app.print(" ", x=4, y=2, panel=f"{guess_order[guess_position - 1]}.0")
+    app.guess_complete = False
+    if (guess_position - 1) not in [0, 5, 10, 15, 20, 25]:
         app.guess_position -= 1
 
 
